@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 from config.db import mydb
 from schemas.formations import Formation
 from typing import List
@@ -35,9 +36,12 @@ async def create_Formation(file: UploadFile):
         cursor.executemany(query, values)
         mydb.commit()
         cursor.close()
-        return formations
-    except Exception as e:
+        return JSONResponse("Ajout données réalisé")
+    except HTTPException as e:
         # Gérer l'exception ici (par exemple, enregistrer un journal)
         print(f"Une exception s'est produite dans create_Formation : {e}")
+        raise e
+    except Exception as e:
+        # Gérer l'exception ici (par exemple, enregistrer un journal)
         raise HTTPException(
-            status_code=500, detail="Erreur interne du serveur")
+            status_code=500, detail=f"Erreur BDD : {e}")
